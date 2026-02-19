@@ -257,7 +257,7 @@
             <div class="col-span-2">{{ r.erinnerung ?? '–' }}</div>
 
             <div class="col-span-2 text-right space-x-2">
-              <a class="text-white bg-neutral-500 border border-brand hover:bg-neutral-600 hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium leading-5 rounded-base text-xs p-1 mx-3 my-1.5 focus:outline-none" href="{{ url('reminders', baseParams|merge({ edit: r.id })) }}">bearbeiten</a>
+              <a class="text-black bg-gray-100 border border-brand hover:text-black hover:bg-gray-300 focus:ring-4 focus:ring-brand-subtle font-medium leading-5 rounded-base text-xs p-1 mx-3 my-1.5 focus:outline-none" href="{{ url('reminders', baseParams|merge({ edit: r.id })) }}">bearbeiten</a>
 
               <form method="post" action="{{ actionUrl('elements/delete') }}" class="inline">
                 {{ csrfInput() }}
@@ -267,7 +267,7 @@
                 <input type="hidden" name="elementId" value="{{ r.id }}">
                 <input type="hidden" name="siteId" value="{{ siteId }}">
 
-                <button class="text-white bg-red-600 border border-brand hover:bg-red-700 hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium leading-5 rounded-base text-xs p-1 mx-3 my-1.5 focus:outline-none" type="submit"
+                <button class="text-black bg-gray-100 border border-brand hover:text-black hover:bg-gray-300 focus:ring-4 focus:ring-brand-subtle font-medium leading-5 rounded-base text-xs p-1 mx-3 my-1.5 focus:outline-none" type="submit"
                         onclick="return confirm('Wirklich löschen?')">löschen</button>
               </form>
             </div>
