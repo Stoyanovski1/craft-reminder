@@ -1,0 +1,8 @@
+baseUrl: $PRIMARY_SITE_URL
+handle: default
+hasUrls: true
+language: en
+name: 'Microlab Reminder'
+primary: true
+siteGroup: 7949a2d9-fbf6-451d-b8b8-ddb2fc1a9f01 # Microlab Reminder
+sortOrder: 1

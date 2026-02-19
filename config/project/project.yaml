@@ -1,0 +1,30 @@
+dateModified: 1771367137
+email:
+  fromEmail: draganstojanovski654@gmail.com
+  fromName: 'Microlab Reminder'
+  transportType: craft\mail\transportadapters\Sendmail
+meta:
+  __names__:
+    3d77345b-6c48-4b7b-9bfc-890402af5647: Reminders # Reminders
+    529c7c28-c2dd-497d-b354-14ea217a97ce: 'Microlab Reminder' # Microlab Reminder
+    7949a2d9-fbf6-451d-b8b8-ddb2fc1a9f01: 'Microlab Reminder' # Microlab Reminder
+    758983ef-8e21-411c-9414-d9e34779590d: Datum # Datum
+    b2fb81e0-b021-441f-9f9f-4af1ef88382a: Deafult # Deafult
+    ce171fd0-e71b-4ed1-9b30-0129366ada4c: Beschreibung # Beschreibung
+    daa155fe-6bef-4cf5-b0b5-abc213a997f0: Erinnerung # Erinnerung
+    dfef2e4f-02bd-401a-a747-b23a7e124ed3: Status # Status
+    f06fbcc3-85e9-4fe6-995a-68f8a2c2849f: Erledigt # Erledigt
+system:
+  edition: solo
+  live: true
+  name: 'Microlab Reminder'
+  retryDuration: null
+  schemaVersion: 5.9.0.8
+  timeZone: Europe/Vienna
+users:
+  allowPublicRegistration: false
+  defaultGroup: null
+  photoSubpath: null
+  photoVolumeUid: null
+  require2fa: false
+  requireEmailVerification: true

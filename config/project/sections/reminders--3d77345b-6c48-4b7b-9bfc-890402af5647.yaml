@@ -1,0 +1,21 @@
+defaultPlacement: end
+enableVersioning: true
+entryTypes:
+  -
+    uid: b2fb81e0-b021-441f-9f9f-4af1ef88382a # Deafult
+handle: reminders
+maxAuthors: 1
+name: Reminders
+previewTargets:
+  -
+    label: 'Primary entry page'
+    refresh: '1'
+    urlFormat: '{url}'
+propagationMethod: all
+siteSettings:
+  529c7c28-c2dd-497d-b354-14ea217a97ce: # Microlab Reminder
+    enabledByDefault: true
+    hasUrls: true
+    template: reminders/_entry
+    uriFormat: 'reminders/{slug}'
+type: channel

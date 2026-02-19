@@ -1,0 +1,288 @@
+{# templates/reminders/index.twig #}
+{% extends "_layout" %}
+
+{% requireLogin %}
+
+{% if not currentUser or not currentUser.admin %}
+  {% exit 403 %}
+{% endif %}
+
+{% block content %}
+
+{# =========================
+   A) Section aus DB holen
+   ========================= #}
+{% set sectionHandle = 'reminders' %}
+
+{% set sectionRow = craft.app.db.createCommand("
+  SELECT id, name, handle
+  FROM {{%sections}}
+  WHERE handle = :h
+  LIMIT 1
+", { h: sectionHandle }).queryOne() %}
+
+{% if not sectionRow %}
+  {% set all = craft.app.db.createCommand("SELECT id, name, handle FROM {{%sections}} ORDER BY id").queryAll() %}
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="border border-red-200 bg-red-50 text-red-700 rounded p-4">
+      <strong>Konfiguration fehlt</strong><br>
+      Section-Handle <code>{{ sectionHandle }}</code> nicht in DB gefunden.<br><br>
+      <strong>Sections in DB:</strong><br>
+      <code>
+        {% for s in all %}
+          [{{ s.id }}] {{ s.name }} → {{ s.handle }}{% if not loop.last %} | {% endif %}
+        {% endfor %}
+      </code>
+    </div>
+  </div>
+  {% exit %}
+{% endif %}
+
+{% set sectionId = sectionRow.id %}
+{% set siteId = craft.app.sites.currentSite.id %}
+{% set req = craft.app.request %}
+
+{# 1) typeId aus entries holen #}
+{% set typeId = craft.app.db.createCommand("
+  SELECT typeId
+  FROM {{%entries}}
+  WHERE sectionId = :sid AND typeId IS NOT NULL
+  ORDER BY id ASC
+  LIMIT 1
+", { sid: sectionId }).queryScalar() %}
+
+{# 2) Fallback: entrytypes Spalten checken #}
+{% if not typeId %}
+  {% set cols = craft.app.db.createCommand("SHOW COLUMNS FROM {{%entrytypes}}").queryAll() %}
+  {% set colNames = [] %}
+  {% for c in cols %}
+    {% set colNames = colNames|merge([c.Field]) %}
+  {% endfor %}
+
+  {# mögliche Spaltennamen #}
+  {% set fkCol = null %}
+  {% for candidate in ['sectionId','section_id','section'] %}
+    {% if candidate in colNames %}
+      {% set fkCol = candidate %}
+    {% endif %}
+  {% endfor %}
+
+  {% if fkCol %}
+    {% set typeId = craft.app.db.createCommand("
+      SELECT id
+      FROM {{%entrytypes}}
+      WHERE " ~ fkCol ~ " = :sid
+      ORDER BY sortOrder ASC, id ASC
+      LIMIT 1
+    ", { sid: sectionId }).queryScalar() %}
+  {% endif %}
+{% endif %}
+
+{% if not typeId %}
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="border border-red-200 bg-red-50 text-red-700 rounded p-4">
+      <strong>Konfiguration fehlt</strong><br>
+      Konnte keinen <code>typeId</code> für Section <code>{{ sectionHandle }}</code> finden.<br><br>
+      <ul class="list-disc ml-5">
+        <li>Entweder: Section hat noch keine Entries</li>
+        <li>oder: DB-Schema von <code>entrytypes</code> passt nicht zu Craft</li>
+      </ul>
+      <br>
+      <strong>Tipp:</strong> Erstelle im CP einmal einen Entry in dieser Section, dann klappt Fix (1) automatisch.
+    </div>
+  </div>
+  {% exit %}
+{% endif %}
+
+{# =========================
+   C) Query Params / URLs
+   ========================= #}
+{% set editId = req.getQueryParam('edit') %}
+{% set future = req.getQueryParam('future') ? 1 : 0 %}
+{% set open = req.getQueryParam('open') ? 1 : 0 %}
+{% set sort = (req.getQueryParam('sort') ?: 'asc')|lower %}
+{% set sortDir = sort == 'desc' ? 'desc' : 'asc' %}
+
+{% set baseParams = { sort: sortDir } %}
+{% if future %}{% set baseParams = baseParams|merge({ future: 1 }) %}{% endif %}
+{% if open %}{% set baseParams = baseParams|merge({ open: 1 }) %}{% endif %}
+
+{% set listUrl = url('reminders', baseParams) %}
+{% set urlToggleFuture = url('reminders', baseParams|merge({ future: future ? null : 1 })) %}
+{% set urlToggleOpen   = url('reminders', baseParams|merge({ open: open ? null : 1 })) %}
+{% set urlToggleSort   = url('reminders', baseParams|merge({ sort: sortDir == 'asc' ? 'desc' : 'asc' })) %}
+
+{# Edit entry (ElementQuery ist ok, ich nutze sectionId nicht section()) #}
+{% set editEntry = editId ? craft.entries().id(editId).siteId(siteId).one() : null %}
+
+{# Dropdown options #}
+{% set reminderField = craft.app.fields.getFieldByHandle('erinnerung') %}
+{% set reminderOptions = (reminderField and reminderField.options is defined) ? reminderField.options : [] %}
+
+{# =========================
+   UI
+   ========================= #}
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <div class="grid grid-cols-12 gap-8">
+
+    <aside class="col-span-12 md:col-span-3">
+      <div class="bg-gray-700 text-white rounded-lg p-4 space-y-2">
+        <a class="block px-3 py-2 rounded bg-white/10" href="{{ url('reminders') }}">Home</a>
+        <a class="block px-3 py-2 rounded hover:bg-white/10" href="{{ url('reminders') }}">Menüpunkt 1</a>
+        <a class="block px-3 py-2 rounded hover:bg-white/10" href="{{ url('reminders') }}">Menüpunkt 2</a>
+      </div>
+    </aside>
+
+    <main class="col-span-12 md:col-span-9">
+
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-semibold">Erinnerungskalender</h1>
+        <div class="text-gray-500">logo</div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <a class="px-3 py-2 rounded border {{ future ? 'bg-gray-800 text-white border-gray-800' : 'bg-white border-gray-300' }}"
+           href="{{ urlToggleFuture }}">Nur zukünftige</a>
+
+        <a class="px-3 py-2 rounded border {{ open ? 'bg-gray-800 text-white border-gray-800' : 'bg-white border-gray-300' }}"
+           href="{{ urlToggleOpen }}">Nur offene</a>
+
+        <a class="px-3 py-2 rounded border bg-white border-gray-300"
+           href="{{ urlToggleSort }}">Sort: {{ sortDir|upper }}</a>
+
+        {% if editEntry %}
+          <a class="ml-auto px-3 py-2 rounded border border-gray-300 bg-white"
+             href="{{ listUrl }}">Edit abbrechen</a>
+        {% endif %}
+      </div>
+
+      {# FORM #}
+      <div class="bg-gray-100 border border-gray-300 rounded-lg p-5 mb-6">
+        <form method="post" action="{{ actionUrl('entries/save-entry') }}" class="grid grid-cols-12 gap-4 items-end" accept-charset="UTF-8">
+          {{ csrfInput() }}
+          {{ actionInput('entries/save-entry') }}
+          {{ redirectInput(listUrl) }}
+
+          <input type="hidden" name="siteId" value="{{ siteId }}">
+          <input type="hidden" name="sectionId" value="{{ sectionId }}">
+          <input type="hidden" name="typeId" value="{{ typeId }}">
+          <input type="hidden" name="enabled" value="1">
+
+          {% if editEntry %}
+            <input type="hidden" name="entryId" value="{{ editEntry.id }}">
+          {% endif %}
+
+          <div class="col-span-12 md:col-span-3">
+            <label class="block text-sm font-medium mb-1">Datum</label>
+            <input class="w-full border border-gray-300 rounded px-3 py-2"
+                   type="date" name="fields[datum]"
+                   value="{{ editEntry and editEntry.datum ? editEntry.datum|date('Y-m-d') : '' }}"
+                   required>
+          </div>
+
+          <div class="col-span-12 md:col-span-5">
+            <label class="block text-sm font-medium mb-1">Bezeichnung</label>
+            <input class="w-full border border-gray-300 rounded px-3 py-2"
+                   type="text" name="title"
+                   value="{{ editEntry ? editEntry.title : '' }}"
+                   required>
+          </div>
+
+          <div class="col-span-12 md:col-span-2">
+            <label class="block text-sm font-medium mb-1">Erinnerung</label>
+            <select class="w-full border border-gray-300 rounded px-3 py-2"
+                    name="fields[erinnerung]" required>
+              {% set currentReminder = editEntry ? (editEntry.erinnerung ?? null) : null %}
+              <option value="" disabled {{ currentReminder ? '' : 'selected' }}>- bitte auswählen -</option>
+              {% for opt in reminderOptions %}
+                <option value="{{ opt.value }}" {{ currentReminder == opt.value ? 'selected' : '' }}>
+                  {{ opt.label }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-span-12 md:col-span-2">
+            <label class="block text-sm font-medium mb-1">Erledigt</label>
+            <label class="inline-flex items-center gap-2">
+              <input type="hidden" name="fields[erledigt]" value="0">
+              <input type="checkbox" name="fields[erledigt]" value="1"
+                     {{ editEntry and (editEntry.erledigt ?? false) ? 'checked' : '' }}>
+              <span>Ja</span>
+            </label>
+          </div>
+
+          <div class="col-span-12">
+            <label class="block text-sm font-medium mb-1">Beschreibung</label>
+            <textarea class="w-full border border-gray-300 rounded px-3 py-2"
+                      name="fields[beschreibung]" rows="2" required>{{ editEntry ? (editEntry.beschreibung ?? '') : '' }}</textarea>
+          </div>
+
+          <div class="col-span-12 flex justify-end gap-2">
+            {% if editEntry %}
+              <a class="px-4 py-2 rounded border border-gray-400" href="{{ listUrl }}">Abbrechen</a>
+            {% endif %}
+            <button class="px-5 py-2 rounded bg-green-600 text-white hover:bg-green-700" type="submit">
+              {{ editEntry ? 'AKTUALISIEREN' : 'SPEICHERN' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {# LISTE #}
+      {% set q = craft.entries().sectionId(sectionId).siteId(siteId) %}
+
+      {% if future %}
+        {% set q = q.datum('>= ' ~ now|date('Y-m-d')) %}
+      {% endif %}
+
+      {% if open %}
+        {% set q = q.erledigt(false) %}
+      {% endif %}
+
+      {% set reminders = q.orderBy('datum ' ~ sortDir).all() %}
+
+      <div class="bg-gray-100 border border-gray-300 rounded-lg p-5">
+        <div class="grid grid-cols-12 text-sm font-semibold text-gray-700 pb-2 border-b border-gray-300">
+          <div class="col-span-3">Datum</div>
+          <div class="col-span-5">Bezeichnung</div>
+          <div class="col-span-2">Erinnerung</div>
+          <div class="col-span-2 text-right">Aktion</div>
+        </div>
+
+        {% for r in reminders %}
+          <div class="grid grid-cols-12 py-3 border-b border-gray-200 items-center">
+            <div class="col-span-3">{{ r.datum ? r.datum|date('d.m.Y') : '–' }}</div>
+
+            <div class="col-span-5">
+              <a class="underline text-fg-brand" href="{{ r.url }}">{{ r.title }}</a>
+            </div>
+
+            <div class="col-span-2">{{ r.erinnerung ?? '–' }}</div>
+
+            <div class="col-span-2 text-right space-x-2">
+              <a class="text-white bg-neutral-500 border border-brand hover:bg-neutral-600 hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium leading-5 rounded-base text-xs p-1 mx-3 my-1.5 focus:outline-none" href="{{ url('reminders', baseParams|merge({ edit: r.id })) }}">bearbeiten</a>
+
+              <form method="post" action="{{ actionUrl('elements/delete') }}" class="inline">
+                {{ csrfInput() }}
+                {{ actionInput('elements/delete') }}
+                {{ redirectInput(listUrl) }}
+
+                <input type="hidden" name="elementId" value="{{ r.id }}">
+                <input type="hidden" name="siteId" value="{{ siteId }}">
+
+                <button class="text-white bg-red-600 border border-brand hover:bg-red-700 hover:text-white focus:ring-4 focus:ring-brand-subtle font-medium leading-5 rounded-base text-xs p-1 mx-3 my-1.5 focus:outline-none" type="submit"
+                        onclick="return confirm('Wirklich löschen?')">löschen</button>
+              </form>
+            </div>
+          </div>
+        {% else %}
+          <div class="py-4 text-gray-500">Noch keine Reminders vorhanden.</div>
+        {% endfor %}
+      </div>
+
+    </main>
+  </div>
+</div>
+
+{% endblock %}

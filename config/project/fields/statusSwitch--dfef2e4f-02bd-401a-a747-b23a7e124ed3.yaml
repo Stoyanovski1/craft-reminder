@@ -1,0 +1,13 @@
+columnSuffix: null
+handle: statusSwitch
+instructions: null
+name: Status
+searchable: false
+settings:
+  default: false
+  offLabel: null
+  onLabel: null
+  showLabelsInCards: false
+translationKeyFormat: null
+translationMethod: none
+type: craft\fields\Lightswitch

@@ -1,4 +1,11 @@
-/.env
-/.idea
 /vendor
+/node_modules
+/.env
+/storage
+/web/assets
+/config/db.php
+/config/license.key
+/config/license.key.*
 .DS_Store
+.idea
+.vscode

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Microlab Reminder{% endblock %}</title>
+    <link rel="stylesheet" href="/assets/app.css">
+
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <header class="border-b bg-white">
+    <div class="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
+      <a href="/" class="font-semibold text-lg">Microlab Reminder</a>
+      <nav class="flex gap-4 text-sm">
+        <a href="/" class="hover:underline">Alle</a>
+        <a href="/reminders" class="hover:underline">Reminders</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-4xl px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

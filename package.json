@@ -1,0 +1,28 @@
+{
+  "name": "html",
+  "version": "1.0.0",
+  "description": "<a href=\"https://craftcms.com/\" rel=\"noopener\" target=\"_blank\"><img width=\"247\" height=\"60\" src=\"https://craftcms.com/craftcms.svg\" alt=\"Craft CMS\"></a>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -i ./src/css/app.css -o ./web/assets/app.css --minify",
+    "watch:css": "tailwindcss -i ./src/css/app.css -o ./web/assets/app.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/craftcms/craft.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/craftcms/craft/issues"
+  },
+  "homepage": "https://github.com/craftcms/craft#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
+  }
+}
