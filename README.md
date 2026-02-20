@@ -20,12 +20,12 @@ Implementierung einer Anwendung zur Verwaltung von Erinnerungen mit:
 
 Die Anwendung bietet folgende Funktionen:
 
-- ✅ Erinnerungen erstellen  
-- ✅ Erinnerungen bearbeiten  
-- ✅ Erinnerungen löschen  
-- ✅ Filter: nur zukünftige Termine  
-- ✅ Filter: nur offene (nicht erledigte) Einträge  
-- ✅ Sortierung nach Datum (ASC / DESC)  
+- ✅ Erinnerungen erstellen
+- ✅ Erinnerungen bearbeiten
+- ✅ Erinnerungen löschen
+- ✅ Filter: nur zukünftige Termine
+- ✅ Filter: nur offene (nicht erledigte) Einträge
+- ✅ Sortierung nach Datum (ASC / DESC)
 
 Die Benutzeroberfläche wurde mit Tailwind CSS umgesetzt.
 

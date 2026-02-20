@@ -1,0 +1,13 @@
+[phases.setup]
+nixPkgs = [
+  "php82",
+  "php82Packages.composer",
+  "php82Extensions.bcmath",
+  "php82Extensions.intl",
+  "php82Extensions.pdo_mysql",
+  "php82Extensions.mbstring",
+  "php82Extensions.zip",
+  "php82Extensions.curl",
+  "php82Extensions.openssl",
+  "php82Extensions.fileinfo"
+]
