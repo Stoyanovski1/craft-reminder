@@ -1,11 +1,11 @@
 # =========================
-# 1) Node stage (Tailwind -> web/assets/app.css)
+# 1) Node stage (Tailwind)
 # =========================
-FROM node:20-alpine AS nodebuilder
+FROM node:20-bookworm-slim AS nodebuilder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 RUN npm run build:css
