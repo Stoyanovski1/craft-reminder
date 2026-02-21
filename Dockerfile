@@ -5,14 +5,14 @@ FROM node:20-alpine AS assets
 
 WORKDIR /app
 
-# Copy only the files needed to install deps first (better caching)
-COPY package.json package-lock.json ./
+# Copy only package files first (better caching)
+COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Now copy the rest of the project (so Tailwind has templates/config)
+# Copy the rest of the project (so Tailwind can scan templates/config)
 COPY . .
 
-# Build CSS (must create /web/assets/app.css)
+# Build CSS (uses your package.json script build:css)
 RUN npm run build:css
 
 
@@ -25,11 +25,14 @@ WORKDIR /app
 
 # System deps + PHP extensions Craft often needs
 RUN apt-get update && apt-get install -y \
-  git unzip zip libzip-dev \
-  libicu-dev \
-  libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+    unzip \
+    libicu-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libfreetype6-dev \
+    libzip-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install pdo_mysql intl gd opcache zip \
+  && docker-php-ext-install gd intl pdo_mysql zip opcache \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
@@ -38,16 +41,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copy app code
 COPY . .
 
-# Copy the built CSS from the node stage (overwrites if missing)
-RUN mkdir -p web/assets \
-  && cp -f /app/web/assets/app.css web/assets/app.css
+# Copy built CSS from node stage (THIS FIXES 404)
+RUN mkdir -p web/assets
+COPY --from=assets /app/web/assets/app.css /app/web/assets/app.css
+# Optional (only if generated)
+# COPY --from=assets /app/web/assets/app.css.map /app/web/assets/app.css.map
 
-# Install PHP deps (production)
-RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
-
-# Permissions (Craft needs these writable)
-RUN mkdir -p storage web/cpresources \
+# Runtime storage permissions
+RUN mkdir -p storage/runtime storage/logs web/cpresources \
   && chmod -R 777 storage web/cpresources
 
+# Install PHP deps (prod)
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
 # Railway provides PORT
-CMD ["sh", "-lc", "php -S 0.0.0.0:${PORT:-8080} -t web web/index.php"]
+CMD ["sh", "-lc", "php -S 0.0.0.0:${PORT} -t web web/index.php"]
