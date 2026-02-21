@@ -12,7 +12,7 @@
 
 {% if onlyOpen %}
   {% set q = q.statusSwitch(false) %}
-{% endif %}
+{% endif %} 
 
 {% set q = q.orderBy('datum ' ~ (sort == 'desc' ? 'desc' : 'asc')) %}
 
