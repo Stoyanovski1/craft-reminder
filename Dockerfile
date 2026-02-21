@@ -19,4 +19,4 @@ RUN mkdir -p storage/runtime storage/logs web/cpresources \
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Railway provides $PORT
-CMD ["sh", "-lc", "php -S 0.0.0.0:${PORT} -t web web/index.php"]
+CMD ["sh", "-lc", "php -S 0.0.0.0:${PORT} -t web"]
