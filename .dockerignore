@@ -1,0 +1,11 @@
+.git
+.ddev
+node_modules
+vendor
+storage
+.env
+
+!composer.lock
+!composer.json
+!package.json
+!package-lock.json
