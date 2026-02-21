@@ -1,7 +1,7 @@
 .git
 .ddev
-node_modules
-vendor
-storage
+/node_modules
+/vendor
+/storage
 web/cpresources
-.env
+/.env
