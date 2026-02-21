@@ -1,0 +1,7 @@
+.git
+.ddev
+node_modules
+vendor
+storage
+web/cpresources
+.env
