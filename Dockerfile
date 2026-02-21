@@ -1,33 +1,32 @@
 # =========================
-# 1) Node stage (Tailwind -> web/assets/app.css)
+# 1) Node build (Tailwind)
 # =========================
-FROM node:20-alpine AS nodebuilder
+FROM node:20-bookworm-slim AS nodebuilder
 WORKDIR /app
 
-# install node deps (needs lockfile)
+# Install deps first (cache-friendly)
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# copy source and build css
+# Copy source and build CSS
 COPY . .
 RUN npm run build:css
 
-
 # =========================
-# 2) PHP + Apache stage (Craft CMS)
+# 2) PHP + Apache (Craft)
 # =========================
 FROM php:8.2-apache
 WORKDIR /app
 
-# System deps + PHP extensions needed by Craft
+# System deps + PHP extensions Craft needs
 RUN apt-get update && apt-get install -y \
     git unzip zip \
     libzip-dev \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     libicu-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install -j$(nproc) \
-    pdo_mysql intl gd opcache zip bcmath \
+  && docker-php-ext-install -j"$(nproc)" \
+      pdo_mysql intl gd opcache zip bcmath \
   && rm -rf /var/lib/apt/lists/*
 
 # Apache: enable rewrite + set docroot to /app/web
@@ -38,19 +37,16 @@ RUN a2enmod rewrite \
 # Composer binary
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy composer files first (better cache) - lock MUST exist
-COPY composer.json composer.lock ./
-
-# Install PHP deps (prod only)
-RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
-
-# Copy app source
+# Copy app code (includes composer.lock if it's in repo)
 COPY . .
 
-# Copy built CSS from node stage (guarantee it exists in final image)
+# Copy built CSS from node stage into final image
 COPY --from=nodebuilder /app/web/assets/app.css /app/web/assets/app.css
 
-# Ensure writable dirs for Craft
+# Install PHP deps (prod)
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+# Craft writable dirs
 RUN mkdir -p storage runtime web/cpresources web/assets \
   && chown -R www-data:www-data storage runtime web/cpresources web/assets
 
