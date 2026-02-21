@@ -37,7 +37,7 @@ RUN a2dismod mpm_event mpm_worker || true \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Composer deps (needs composer.lock in repo)
-COPY composer.json composer.lock /app/
+COPY project/composer.json project/composer.lock /app/
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 # App code
