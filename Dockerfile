@@ -13,6 +13,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
 
+RUN mkdir -p storage/runtime storage/logs web/cpresources \
+&& chmod -R 777 storage web/cpresources
+
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Railway provides $PORT
