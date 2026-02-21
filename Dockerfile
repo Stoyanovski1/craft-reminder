@@ -23,15 +23,17 @@ FROM php:8.2-cli
 
 WORKDIR /app
 
-# Install system deps
 RUN apt-get update && apt-get install -y \
     unzip \
+    zip \
     libzip-dev \
     libjpeg-dev \
     libpng-dev \
     libfreetype6-dev \
     libonig-dev \
-    zip \
+    libicu-dev \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql intl gd opcache zip \
     && rm -rf /var/lib/apt/lists/*
 
