@@ -16,4 +16,4 @@ COPY . .
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Railway provides $PORT
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "web"]
+CMD sh -c "php -S 0.0.0.0:${PORT} -t web"
