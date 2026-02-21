@@ -3,7 +3,6 @@
 /.env
 /storage
 /web/assets
-/config/db.php
 /config/license.key
 /config/license.key.*
 .DS_Store
