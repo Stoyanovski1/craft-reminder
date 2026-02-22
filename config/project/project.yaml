@@ -1,4 +1,4 @@
-dateModified: 1771367137
+dateModified: 1771795773
 email:
   fromEmail: draganstojanovski654@gmail.com
   fromName: 'Microlab Reminder'
@@ -14,6 +14,35 @@ meta:
     daa155fe-6bef-4cf5-b0b5-abc213a997f0: Erinnerung # Erinnerung
     dfef2e4f-02bd-401a-a747-b23a7e124ed3: Status # Status
     f06fbcc3-85e9-4fe6-995a-68f8a2c2849f: Erledigt # Erledigt
+plugins:
+  guest-entries:
+    edition: standard
+    enabled: true
+    schemaVersion: 2.1.0
+    settings:
+      enableCsrfProtection: '1'
+      entryVariable: entry
+      sections:
+        __assoc__:
+          -
+            - 3d77345b-6c48-4b7b-9bfc-890402af5647 # Reminders
+            -
+              __assoc__:
+                -
+                  - sectionUid
+                  - 3d77345b-6c48-4b7b-9bfc-890402af5647 # Reminders
+                -
+                  - allowGuestSubmissions
+                  - '1'
+                -
+                  - enabledByDefault
+                  - ''
+                -
+                  - runValidation
+                  - ''
+                -
+                  - authorUid
+                  - be404626-54c9-44ff-9f22-3ac2e687d3b4
 system:
   edition: solo
   live: true

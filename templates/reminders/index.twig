@@ -154,46 +154,37 @@
 
       {# FORM #}
       <div class="bg-gray-100 border border-gray-300 rounded-lg p-5 mb-6">
-        <form method="post" action="{{ actionUrl('entries/save-entry') }}" class="grid grid-cols-12 gap-4 items-end" accept-charset="UTF-8">
+        <form method="post" accept-charset="UTF-8" class="grid grid-cols-12 gap-4 items-end">
           {{ csrfInput() }}
-          {{ actionInput('entries/save-entry') }}
+          {{ actionInput('guest-entries/save') }}
           {{ redirectInput(listUrl) }}
 
-          <input type="hidden" name="siteId" value="{{ siteId }}">
-          <input type="hidden" name="sectionId" value="{{ sectionId }}">
-          <input type="hidden" name="typeId" value="{{ typeId }}">
-          <input type="hidden" name="enabled" value="1">
-
-          {% if editEntry %}
-            <input type="hidden" name="entryId" value="{{ editEntry.id }}">
-          {% endif %}
+          {# Guest Entries koristi HANDLE, ne sectionId/typeId #}
+          <input type="hidden" name="sectionHandle" value="reminders">
 
           <div class="col-span-12 md:col-span-3">
             <label class="block text-sm font-medium mb-1">Datum</label>
             <input class="w-full border border-gray-300 rounded px-3 py-2"
-                   type="date" name="fields[datum]"
-                   value="{{ editEntry and editEntry.datum ? editEntry.datum|date('Y-m-d') : '' }}"
-                   required>
+                  type="date" name="fields[datum]"
+                  value=""
+                  required>
           </div>
 
           <div class="col-span-12 md:col-span-5">
             <label class="block text-sm font-medium mb-1">Bezeichnung</label>
             <input class="w-full border border-gray-300 rounded px-3 py-2"
-                   type="text" name="title"
-                   value="{{ editEntry ? editEntry.title : '' }}"
-                   required>
+                  type="text" name="title"
+                  value=""
+                  required>
           </div>
 
           <div class="col-span-12 md:col-span-2">
             <label class="block text-sm font-medium mb-1">Erinnerung</label>
             <select class="w-full border border-gray-300 rounded px-3 py-2"
                     name="fields[erinnerung]" required>
-              {% set currentReminder = editEntry ? (editEntry.erinnerung ?? null) : null %}
-              <option value="" disabled {{ currentReminder ? '' : 'selected' }}>- bitte auswählen -</option>
+              <option value="" disabled selected>- bitte auswählen -</option>
               {% for opt in reminderOptions %}
-                <option value="{{ opt.value }}" {{ currentReminder == opt.value ? 'selected' : '' }}>
-                  {{ opt.label }}
-                </option>
+                <option value="{{ opt.value }}">{{ opt.label }}</option>
               {% endfor %}
             </select>
           </div>
@@ -202,8 +193,7 @@
             <label class="block text-sm font-medium mb-1">Erledigt</label>
             <label class="inline-flex items-center gap-2">
               <input type="hidden" name="fields[erledigt]" value="0">
-              <input type="checkbox" name="fields[erledigt]" value="1"
-                     {{ editEntry and (editEntry.erledigt ?? false) ? 'checked' : '' }}>
+              <input type="checkbox" name="fields[erledigt]" value="1">
               <span>Ja</span>
             </label>
           </div>
@@ -211,15 +201,12 @@
           <div class="col-span-12">
             <label class="block text-sm font-medium mb-1">Beschreibung</label>
             <textarea class="w-full border border-gray-300 rounded px-3 py-2"
-                      name="fields[beschreibung]" rows="2" required>{{ editEntry ? (editEntry.beschreibung ?? '') : '' }}</textarea>
+                      name="fields[beschreibung]" rows="2" required></textarea>
           </div>
 
           <div class="col-span-12 flex justify-end gap-2">
-            {% if editEntry %}
-              <a class="px-4 py-2 rounded border border-gray-400" href="{{ listUrl }}">Abbrechen</a>
-            {% endif %}
             <button class="px-5 py-2 rounded bg-green-600 text-white hover:bg-green-700" type="submit">
-              {{ editEntry ? 'AKTUALISIEREN' : 'SPEICHERN' }}
+              SPEICHERN
             </button>
           </div>
         </form>
