@@ -1,4 +1,4 @@
-ARG CACHEBUST=3
+ARG CACHEBUST=4
 
 ############################
 # 1) Build CSS (Node)
@@ -26,10 +26,17 @@ FROM php:8.2-apache-bookworm
 
 WORKDIR /app
 
+# ---- FORCE SINGLE MPM ----
 RUN set -eux; \
     rm -f /etc/apache2/mods-enabled/mpm_*.load; \
     rm -f /etc/apache2/mods-enabled/mpm_*.conf; \
     a2enmod mpm_prefork;
+
+# ---- Railway PORT FIX ----
+ENV PORT=8080
+
+RUN sed -i "s/80/${PORT}/g" /etc/apache2/ports.conf \
+    && sed -i "s/:80/:${PORT}/g" /etc/apache2/sites-available/000-default.conf
 
 # Enable needed Apache modules
 RUN a2enmod rewrite headers
@@ -70,6 +77,6 @@ COPY --from=assets /app/web/assets/app.css /app/web/assets/app.css
 RUN mkdir -p storage runtime web/cpresources web/assets \
     && chown -R www-data:www-data storage runtime web/cpresources web/assets
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["apache2-foreground"]
