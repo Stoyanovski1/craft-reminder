@@ -69,8 +69,8 @@ RUN mkdir -p /app/web/assets
 COPY --from=assets /app/web/assets/app.css /app/web/assets/app.css
 
 # ---- Writable dirs for Craft ----
-RUN mkdir -p storage runtime web/cpresources web/assets \
-    && chown -R www-data:www-data storage runtime web/cpresources web/assets
+RUN mkdir -p storage runtime web/cpresources web/assets config \
+    && chown -R www-data:www-data storage runtime web/cpresources web/assets config
 
 # ---- Runtime entrypoint: fix PORT + fix MPM every start ----
 RUN printf '%s\n' \
