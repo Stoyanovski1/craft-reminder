@@ -1,4 +1,4 @@
-ARG CACHEBUST=7
+ARG CACHEBUST=8
 
 ############################
 # 1) Build CSS (Node)
@@ -27,7 +27,7 @@ WORKDIR /app
 # Enable needed Apache modules
 RUN a2enmod rewrite headers
 
-# (Optional) Remove Apache ServerName warning
+# Remove Apache ServerName warning (optional but nice)
 RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
   && a2enconf servername
 
@@ -44,6 +44,16 @@ RUN apt-get update && apt-get install -y \
 
 # ---- Set Apache docroot to /app/web ----
 RUN sed -ri 's!/var/www/html!/app/web!g' /etc/apache2/sites-available/000-default.conf
+
+# ---- IMPORTANT: allow /app/web access + enable .htaccess (fixes 403 /admin) ----
+RUN printf '%s\n' \
+'<Directory /app/web>' \
+'  Options FollowSymLinks' \
+'  AllowOverride All' \
+'  Require all granted' \
+'</Directory>' \
+> /etc/apache2/conf-available/craft-web.conf \
+&& a2enconf craft-web
 
 # ---- Install Composer ----
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -71,7 +81,7 @@ RUN printf '%s\n' \
 'PORT="${PORT:-8080}"' \
 'echo "==[INFO] Using PORT=${PORT}=="' \
 '' \
-'# Ensure Apache listens on the correct port (both ports.conf + vhost)' \
+'# Ensure Apache listens on the correct port (ports.conf + vhost)' \
 'sed -i "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf' \
 'sed -i "s/:80/:${PORT}/g" /etc/apache2/sites-available/000-default.conf' \
 '' \
@@ -90,7 +100,5 @@ RUN printf '%s\n' \
 'exec apache2-foreground' \
 > /usr/local/bin/start-apache && chmod +x /usr/local/bin/start-apache
 
-# Railway commonly routes to 8080; EXPOSE is informational but helps clarity
 EXPOSE 8080
-
 CMD ["/usr/local/bin/start-apache"]
