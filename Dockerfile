@@ -18,13 +18,15 @@ COPY src ./src
 # Build CSS -> web/assets/app.css
 RUN npm run build:css
 
-
-
 ############################
 # 2) PHP + Apache (Craft)
 ############################
 FROM php:8.2-apache-bookworm
 
+WORKDIR /app
+
+# ---- FIX MPM CONFLICT ----
+# Disable event/worker, enable prefork only
 RUN set -eux; \
   # prvo disable sve (nije bitno ako neki ne postoje)
   a2dismod mpm_event mpm_worker mpm_prefork || true; \
@@ -37,13 +39,6 @@ RUN set -eux; \
   \
   # sanity check: mora da ostane samo prefork
   apache2ctl -M | grep mpm
-
-WORKDIR /app
-
-# ---- FIX MPM CONFLICT ----
-# Disable event/worker, enable prefork only
-RUN a2dismod mpm_event mpm_worker || true \
-    && a2enmod mpm_prefork
 
 # Enable needed Apache modules
 RUN a2enmod rewrite headers
