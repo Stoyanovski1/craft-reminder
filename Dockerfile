@@ -38,9 +38,7 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Apache: ONLY prefork (avoid "More than one MPM loaded")
-RUN a2dismod mpm_event mpm_worker || true \
- && a2enmod mpm_prefork \ 
- && a2enmod rewrite headers
+RUN a2enmod rewrite headers
 
 # Set docroot to /app/web
 RUN sed -ri 's!/var/www/html!/app/web!g' /etc/apache2/sites-available/000-default.conf \
