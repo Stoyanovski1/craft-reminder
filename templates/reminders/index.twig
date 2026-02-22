@@ -154,9 +154,9 @@
 
       {# FORM #}
       <div class="bg-gray-100 border border-gray-300 rounded-lg p-5 mb-6">
-        <form method="post" action="{{ actionUrl('entries/save-entry') }}" class="grid grid-cols-12 gap-4 items-end" accept-charset="UTF-8">
+        <form method="post" action="{{ actionUrl('guest-entries/save') }}" class="grid grid-cols-12 gap-4 items-end" accept-charset="UTF-8">
           {{ csrfInput() }}
-          {{ actionInput('entries/save-entry') }}
+          {{ actionInput('guest-entries/save') }}
           {{ redirectInput(listUrl) }}
 
           <input type="hidden" name="siteId" value="{{ siteId }}">
