@@ -154,15 +154,15 @@
 
       {# FORM #}
       <div class="bg-gray-100 border border-gray-300 rounded-lg p-5 mb-6">
-        <form method="post" action="{{ actionUrl('guest-entries/save') }}" class="grid grid-cols-12 gap-4 items-end" accept-charset="UTF-8">
+        <form method="post" action="{{ actionUrl('entries/save-entry') }}" class="grid grid-cols-12 gap-4 items-end" accept-charset="UTF-8">
           {{ csrfInput() }}
-          {{ actionInput('guest-entries/save') }}
+          {{ actionInput('entries/save-entry') }}
           {{ redirectInput(listUrl) }}
 
-          {# <input type="hidden" name="siteId" value="{{ siteId }}"> #}
-          {# <input type="hidden" name="sectionId" value="{{ sectionId }}"> #}
-          {# <input type="hidden" name="typeId" value="{{ typeId }}"> #}
-          {# <input type="hidden" name="enabled" value="1"> #}
+          <input type="hidden" name="siteId" value="{{ siteId }}">
+          <input type="hidden" name="sectionId" value="{{ sectionId }}">
+          <input type="hidden" name="typeId" value="{{ typeId }}">
+          <input type="hidden" name="enabled" value="1">
 
           {% if editEntry %}
             <input type="hidden" name="entryId" value="{{ editEntry.id }}">
