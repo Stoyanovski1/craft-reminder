@@ -1,4 +1,4 @@
-ARG CACHEBUST=2
+ARG CACHEBUST=3
 
 ############################
 # 1) Build CSS (Node)
@@ -25,6 +25,11 @@ RUN npm run build:css
 FROM php:8.2-apache-bookworm
 
 WORKDIR /app
+
+RUN set -eux; \
+    rm -f /etc/apache2/mods-enabled/mpm_*.load; \
+    rm -f /etc/apache2/mods-enabled/mpm_*.conf; \
+    a2enmod mpm_prefork;
 
 # Enable needed Apache modules
 RUN a2enmod rewrite headers
