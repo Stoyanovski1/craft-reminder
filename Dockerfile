@@ -1,4 +1,4 @@
-ARG CACHEBUST=10
+ARG CACHEBUST=11
 
 ############################
 # 1) Build CSS (Node)
@@ -11,6 +11,11 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY tailwind.config.js postcss.config.js ./
+
+# ✅ OVO JE KLJUČNO: Tailwind mora da vidi Twig fajlove
+COPY templates ./templates
+
+# Tvoj CSS source
 COPY src ./src
 
 # Build CSS -> web/assets/app.css
@@ -27,7 +32,7 @@ WORKDIR /app
 # Enable needed Apache modules
 RUN a2enmod rewrite headers
 
-# Remove Apache ServerName warning (optional but nice)
+# Remove Apache ServerName warning
 RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
   && a2enconf servername
 
@@ -45,7 +50,7 @@ RUN apt-get update && apt-get install -y \
 # ---- Set Apache docroot to /app/web ----
 RUN sed -ri 's!/var/www/html!/app/web!g' /etc/apache2/sites-available/000-default.conf
 
-# ---- IMPORTANT: allow /app/web access + enable .htaccess (fixes 403 /admin) ----
+# ---- Allow /app/web + enable .htaccess ----
 RUN printf '%s\n' \
 '<Directory /app/web>' \
 '  Options FollowSymLinks' \
@@ -77,21 +82,17 @@ RUN printf '%s\n' \
 '#!/usr/bin/env bash' \
 'set -euo pipefail' \
 '' \
-'# Railway provides PORT (usually 8080). Fallback to 8080.' \
 'PORT="${PORT:-8080}"' \
 'echo "==[INFO] Using PORT=${PORT}=="' \
 '' \
-'# Ensure Apache listens on the correct port (ports.conf + vhost)' \
 'sed -i "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf' \
 'sed -i "s/:80/:${PORT}/g" /etc/apache2/sites-available/000-default.conf' \
 '' \
 'echo "==[DEBUG] mpm files BEFORE fix ==" ' \
 'ls -la /etc/apache2/mods-enabled | grep mpm || true' \
 '' \
-'# Hard reset: remove any enabled MPM symlinks (prevents AH00534)' \
 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' \
 '' \
-'# Enable only prefork' \
 'a2enmod mpm_prefork >/dev/null' \
 '' \
 'echo "==[DEBUG] mpm files AFTER fix ==" ' \
