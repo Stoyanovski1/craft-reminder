@@ -18,7 +18,7 @@ RUN npm run build:css
 # =========================
 # 2) PHP + Apache (Craft)
 # =========================
-FROM php:8.2-apache-bookworm
+FROM php:8.2-apache
 WORKDIR /app
 
 # System deps + PHP extensions for Craft
