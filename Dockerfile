@@ -64,4 +64,6 @@ RUN mkdir -p storage runtime web/cpresources web/assets \
  && chown -R www-data:www-data storage runtime web/cpresources web/assets
 
 # Railway listens on $PORT
-CMD ["bash","-lc","sed -ri \"s/^Listen 80$/Listen ${PORT}/\" /etc/apache2/ports.conf && apache2-foreground"]
+# CMD ["bash","-lc","sed -ri \"s/^Listen 80$/Listen ${PORT}/\" /etc/apache2/ports.conf && apache2-foreground"]
+EXPOSE 80
+CMD ["apache2-foreground"]
