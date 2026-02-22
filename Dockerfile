@@ -1,4 +1,4 @@
-ARG CACHEBUST=1
+ARG CACHEBUST=2
 
 ############################
 # 1) Build CSS (Node)
@@ -18,27 +18,13 @@ COPY src ./src
 # Build CSS -> web/assets/app.css
 RUN npm run build:css
 
+
 ############################
 # 2) PHP + Apache (Craft)
 ############################
 FROM php:8.2-apache-bookworm
 
 WORKDIR /app
-
-# ---- FIX MPM CONFLICT ----
-# Disable event/worker, enable prefork only
-RUN set -eux; \
-  # prvo disable sve (nije bitno ako neki ne postoje)
-  a2dismod mpm_event mpm_worker mpm_prefork || true; \
-  \
-  # onda OBRIŠI sve mpm symlinkove da ne ostanu "duhovi"
-  rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf; \
-  \
-  # uključi isključivo prefork
-  a2enmod mpm_prefork; \
-  \
-  # sanity check: mora da ostane samo prefork
-  apache2ctl -M | grep mpm
 
 # Enable needed Apache modules
 RUN a2enmod rewrite headers
