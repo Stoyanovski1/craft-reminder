@@ -38,7 +38,7 @@ RUN a2enmod rewrite \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Install PHP deps (requires composer.lock in repo)
-COPY composer.json composer.lock ./
+# COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 # Copy app source
