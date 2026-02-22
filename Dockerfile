@@ -28,7 +28,13 @@ RUN apt-get update && apt-get install -y \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     libicu-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install -j"$(nproc)" gd intl pdo_mysql zip opcache \
+  && docker-php-ext-install -j"$(nproc)" \
+        gd \
+        intl \
+        pdo_mysql \
+        zip \
+        bcmath \
+        opcache \
   && rm -rf /var/lib/apt/lists/*
 
 # Apache: ONLY prefork (avoid "More than one MPM loaded")
