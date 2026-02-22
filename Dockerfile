@@ -41,8 +41,7 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite headers
 
 # Set docroot to /app/web
-RUN sed -ri 's!/var/www/html!/app/web!g' /etc/apache2/sites-available/000-default.conf \
- && sed -ri 's!/var/www/!/app/!g' /etc/apache2/apache2.conf
+RUN sed -ri 's!/var/www/html!/app/web!g' /etc/apache2/sites-available/000-default.conf
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
